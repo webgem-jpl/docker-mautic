@@ -1,11 +1,26 @@
-mautic:
-  image: mautic/mautic
-  links:
-    - mauticdb:mysql
-  ports:
-    - 8080:80
-
-mauticdb:
-  image: mysql:5.6
-  environment:
-    MYSQL_ROOT_PASSWORD: example
+version: "2"
+services:
+  mautic:
+    depends_on:
+      - mauticdb
+    image: cbfbffdefe68
+    links:
+      - mauticdb:mysql
+    ports:
+      - 8080:80
+    volumes:
+      - mautic-cache:/var/www/html/app/local
+    environment:
+      MAUTIC_DB_HOST: mysql
+      MAUTIC_DB_USER: root
+      MAUTIC_DB_PASSWORD: root
+  mauticdb:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: mautic
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+volumes:
+  mautic-cache:
+    external: true

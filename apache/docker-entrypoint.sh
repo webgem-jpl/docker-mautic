@@ -71,19 +71,6 @@ if [ -n "$MAUTIC_CRON_DYNAMICS" ]; then
         echo "10,40 * * * *     www-data   php /var/www/html/app/console mautic:integration:fetchleads -i Dynamics > /var/log/cron.pipe 2>&1" >> /etc/cron.d/mautic
 fi
 
-if ! [ -e index.php -a -e app/AppKernel.php ]; then
-        echo >&2 "Mautic not found in $(pwd) - copying now..."
-
-        if [ "$(ls -A)" ]; then
-                echo >&2 "WARNING: $(pwd) is not empty - press Ctrl+C now if this is an error!"
-                ( set -x; ls -A; sleep 10 )
-        fi
-
-        tar cf - --one-file-system -C /usr/src/mautic . | tar xf -
-
-        echo >&2 "Complete! Mautic has been successfully copied to $(pwd)"
-fi
-
 # Ensure the MySQL Database is created
 php /makedb.php "$MAUTIC_DB_HOST" "$MAUTIC_DB_USER" "$MAUTIC_DB_PASSWORD" "$MAUTIC_DB_NAME"
 
@@ -97,11 +84,11 @@ echo >&2 "Database Username: $MAUTIC_DB_USER"
 echo >&2 "Database Password: $MAUTIC_DB_PASSWORD"
 
 # Write the database connection to the config so the installer prefills it
-if ! [ -e app/config/local.php ]; then
+if ! [ -e app/local/config/local.php ]; then
         php /makeconfig.php
 
         # Make sure our web user owns the config file if it exists
-        chown www-data:www-data app/config/local.php
+        chown www-data:www-data app/local/config/local.php
         mkdir -p /var/www/html/app/logs
         chown www-data:www-data /var/www/html/app/logs
 fi
